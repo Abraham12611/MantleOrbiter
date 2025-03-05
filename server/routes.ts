@@ -47,11 +47,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const { address } = req.body;
 
     try {
+      if (!address) {
+        return res.status(400).json({ message: "Wallet address is required" });
+      }
+
       // Find or create user with this address
       let user = Array.from(storage.users.values()).find(u => u.address === address);
 
       if (!user) {
-        user = await storage.createUser({ address });
+        // Create user with randomly generated username and password since we're using wallet auth
+        const randomId = Math.random().toString(36).substring(7);
+        user = await storage.createUser({
+          username: `user_${randomId}`,
+          password: `pass_${randomId}`,
+          address: address
+        });
       }
 
       // Set session
@@ -73,7 +83,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // Protected route example
   app.get("/api/auth/me", isAuthenticated, (req, res) => {
     const user = storage.users.get(req.session.userId!);
     if (!user) {
@@ -82,7 +91,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ user });
   });
 
-  // Existing routes
   app.get("/api/protocols", (_req, res) => {
     res.json(MOCK_PROTOCOLS);
   });
@@ -96,7 +104,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Protected interaction routes
   app.get("/api/interactions/:address", isAuthenticated, (req, res) => {
     res.json([
       { protocolId: 1, count: 5 },
@@ -109,10 +116,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ success: true });
   });
 
-  // Chat completion endpoint
   app.post("/api/chat", async (req, res) => {
     const { message } = req.body;
-
     try {
       const response = await generateChatResponse(message);
       res.json({ response });
