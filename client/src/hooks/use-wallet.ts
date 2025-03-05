@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { useToast } from '@/hooks/use-toast';
 
+// Add type declaration for window.ethereum
 declare global {
   interface Window {
     ethereum?: ethers.providers.ExternalProvider & {
@@ -22,37 +23,27 @@ export function useWallet() {
         description: "Please install MetaMask or another Web3 wallet",
         variant: "destructive",
       });
-      return false;
+      return;
     }
 
     try {
       setConnecting(true);
-      console.log("Requesting wallet connection...");
-
-      // Request account access
       const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const accounts = await provider.send("eth_requestAccounts", []);
-
-      if (!accounts || accounts.length === 0) {
-        throw new Error("No accounts found");
-      }
-
+      await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
-      const userAddress = await signer.getAddress();
-      console.log("Got wallet address:", userAddress);
+      const address = await signer.getAddress();
+      setAddress(address);
 
       // Switch to Mantle network
       try {
-        console.log("Switching to Mantle network...");
-        await window.ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0x1388' }], // Mantle mainnet
-        });
+        if (window.ethereum?.request) {
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: '0x1388' }], // Mantle mainnet
+          });
+        }
       } catch (error: any) {
-        console.log("Network switch error:", error);
-        // If the network doesn't exist, add it
-        if (error.code === 4902) {
-          console.log("Adding Mantle network...");
+        if (error.code === 4902 && window.ethereum?.request) {
           await window.ethereum.request({
             method: 'wallet_addEthereumChain',
             params: [{
@@ -63,24 +54,14 @@ export function useWallet() {
               blockExplorerUrls: ['https://explorer.mantle.xyz'],
             }],
           });
-        } else {
-          throw new Error("Failed to switch to Mantle network");
         }
       }
-
-      // Set the address only after successful network switch
-      setAddress(userAddress);
-      console.log("Wallet connection successful");
-      return true;
-
     } catch (error: any) {
-      console.error("Wallet connection error:", error);
       toast({
         title: "Connection Error",
-        description: error.message || "Failed to connect wallet",
+        description: error.message,
         variant: "destructive",
       });
-      return false;
     } finally {
       setConnecting(false);
     }
