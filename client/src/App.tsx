@@ -8,6 +8,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Home from "@/pages/home";
 import Protocols from "@/pages/protocols";
 import Protocol from "@/pages/protocol";
+import Profile from "@/pages/profile";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -22,6 +23,13 @@ function Router() {
             {(params) => (
               <ProtectedRoute>
                 <Protocol id={params.id} />
+              </ProtectedRoute>
+            )}
+          </Route>
+          <Route path="/profile">
+            {() => (
+              <ProtectedRoute>
+                <Profile />
               </ProtectedRoute>
             )}
           </Route>
