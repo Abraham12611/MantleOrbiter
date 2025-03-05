@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Send, Mic } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 interface Message {
   id: string;
@@ -15,9 +17,11 @@ interface Message {
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -28,17 +32,29 @@ export default function ChatInterface() {
 
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
+    setIsLoading(true);
 
-    // Mock AI response
-    setTimeout(() => {
+    try {
+      const response = await apiRequest("POST", "/api/chat", { message: input });
+      const data = await response.json();
+
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: "I'm a mock AI response. In the full version, I'll provide detailed information about Mantle protocols!",
+        content: data.response,
         sender: "ai",
         timestamp: new Date(),
       };
+
       setMessages((prev) => [...prev, aiMessage]);
-    }, 1000);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to get response from AI. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -77,12 +93,17 @@ export default function ChatInterface() {
             placeholder="Ask about Mantle protocols..."
             onKeyPress={(e) => e.key === "Enter" && handleSend()}
             className="bg-background/50"
+            disabled={isLoading}
           />
-          <Button variant="secondary" size="icon">
+          <Button variant="secondary" size="icon" disabled={isLoading}>
             <Mic className="h-4 w-4" />
           </Button>
-          <Button onClick={handleSend}>
-            <Send className="h-4 w-4" />
+          <Button onClick={handleSend} disabled={isLoading}>
+            {isLoading ? (
+              <div className="h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
           </Button>
         </div>
       </CardContent>
