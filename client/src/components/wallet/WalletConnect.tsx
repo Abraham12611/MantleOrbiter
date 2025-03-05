@@ -4,10 +4,12 @@ import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/contexts/auth";
 
 export default function WalletConnect() {
   const { address, connecting, connect, disconnect } = useWallet();
   const { toast } = useToast();
+  const { checkAuth } = useAuth();
 
   const handleConnect = async () => {
     try {
@@ -17,6 +19,7 @@ export default function WalletConnect() {
       const data = await response.json();
 
       if (data.user) {
+        await checkAuth(); // Update auth context state
         toast({
           title: "Connected",
           description: "Successfully connected and authenticated with wallet",
@@ -36,6 +39,7 @@ export default function WalletConnect() {
     try {
       await apiRequest("POST", "/api/auth/logout");
       disconnect();
+      await checkAuth(); // Update auth context state
       toast({
         title: "Disconnected",
         description: "Successfully disconnected wallet",
