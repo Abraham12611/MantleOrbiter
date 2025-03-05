@@ -23,27 +23,27 @@ export function useWallet() {
         description: "Please install MetaMask or another Web3 wallet",
         variant: "destructive",
       });
-      return;
+      return false;
     }
 
     try {
       setConnecting(true);
+
+      // Request account access
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
-      const address = await signer.getAddress();
-      setAddress(address);
+      const userAddress = await signer.getAddress();
 
       // Switch to Mantle network
       try {
-        if (window.ethereum?.request) {
-          await window.ethereum.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: '0x1388' }], // Mantle mainnet
-          });
-        }
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0x1388' }], // Mantle mainnet
+        });
       } catch (error: any) {
-        if (error.code === 4902 && window.ethereum?.request) {
+        // If the network doesn't exist, add it
+        if (error.code === 4902) {
           await window.ethereum.request({
             method: 'wallet_addEthereumChain',
             params: [{
@@ -54,14 +54,22 @@ export function useWallet() {
               blockExplorerUrls: ['https://explorer.mantle.xyz'],
             }],
           });
+        } else {
+          throw error;
         }
       }
+
+      // Set the address only after successful network switch
+      setAddress(userAddress);
+      return true;
+
     } catch (error: any) {
       toast({
         title: "Connection Error",
         description: error.message,
         variant: "destructive",
       });
+      return false;
     } finally {
       setConnecting(false);
     }
