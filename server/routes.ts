@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { generateChatResponse } from "./services/ai";
 
 const MOCK_PROTOCOLS = [
   {
@@ -39,15 +40,6 @@ const MOCK_PROTOCOLS = [
   },
 ];
 
-// Basic context for the AI to understand common protocol-related questions
-const PROTOCOL_CONTEXT = `
-You are an AI assistant specializing in the Mantle ecosystem. You help users understand:
-- Different protocols available on Mantle
-- How to interact with these protocols
-- Basic concepts of DeFi, NFTs, and blockchain infrastructure
-- Technical aspects of the Mantle L2 solution
-`;
-
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get all protocols
   app.get("/api/protocols", (_req, res) => {
@@ -85,20 +77,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const { message } = req.body;
 
     try {
-      // For now, return structured mock responses based on keywords
-      let response = "I'm currently being upgraded to provide more accurate information about the Mantle ecosystem.";
-
-      const lowercaseMessage = message.toLowerCase();
-      if (lowercaseMessage.includes("mantleswap") || lowercaseMessage.includes("swap")) {
-        response = "MantleSwap is the primary decentralized exchange (DEX) on Mantle network. It allows you to swap tokens easily with low fees thanks to Mantle's L2 technology.";
-      } else if (lowercaseMessage.includes("nft") || lowercaseMessage.includes("mantlenft")) {
-        response = "MantleNFT is Mantle's NFT marketplace, allowing you to mint, buy, and sell NFTs with minimal gas fees. The platform supports various NFT standards.";
-      } else if (lowercaseMessage.includes("vault") || lowercaseMessage.includes("mantlevault")) {
-        response = "MantleVault is a secure asset management protocol that helps users optimize their yield on Mantle. It automatically moves assets between different protocols to maximize returns.";
-      } else if (lowercaseMessage.includes("tvl") || lowercaseMessage.includes("value")) {
-        response = "The Total Value Locked (TVL) across major Mantle protocols: MantleSwap ($1.5M), MantleNFT ($500K), and MantleVault ($2M). These numbers represent the amount of assets locked in these protocols.";
-      }
-
+      const response = await generateChatResponse(message);
       res.json({ response });
     } catch (error) {
       console.error('Chat error:', error);
