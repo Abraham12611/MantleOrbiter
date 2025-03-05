@@ -13,11 +13,19 @@ export default function WalletConnect() {
 
   const handleConnect = async () => {
     try {
-      await connect();
-      // After wallet connection, authenticate with our backend
-      const response = await apiRequest("POST", "/api/auth/login", { address });
-      const data = await response.json();
+      // First connect the wallet
+      const connected = await connect();
+      if (!connected || !address) {
+        throw new Error("Failed to connect wallet");
+      }
 
+      // Then authenticate with our backend
+      const response = await apiRequest("POST", "/api/auth/login", { address });
+      if (!response.ok) {
+        throw new Error("Failed to authenticate with server");
+      }
+
+      const data = await response.json();
       if (data.user) {
         await checkAuth(); // Update auth context state
         toast({
@@ -32,6 +40,8 @@ export default function WalletConnect() {
         description: "Failed to connect wallet. Please try again.",
         variant: "destructive",
       });
+      // Clean up on error
+      disconnect();
     }
   };
 
