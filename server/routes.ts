@@ -1,6 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { generateChatResponse } from "./services/ai";
+import { isAuthenticated } from "./middleware/auth";
 
 const MOCK_PROTOCOLS = [
   {
@@ -40,12 +42,51 @@ const MOCK_PROTOCOLS = [
 ];
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Get all protocols
+  // Authentication routes
+  app.post("/api/auth/login", async (req, res) => {
+    const { address } = req.body;
+
+    try {
+      // Find or create user with this address
+      let user = Array.from(storage.users.values()).find(u => u.address === address);
+
+      if (!user) {
+        user = await storage.createUser({ address });
+      }
+
+      // Set session
+      req.session.userId = user.id;
+
+      res.json({ user });
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({ message: "Error during login" });
+    }
+  });
+
+  app.post("/api/auth/logout", (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ message: "Error during logout" });
+      }
+      res.json({ message: "Logged out successfully" });
+    });
+  });
+
+  // Protected route example
+  app.get("/api/auth/me", isAuthenticated, (req, res) => {
+    const user = storage.users.get(req.session.userId!);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json({ user });
+  });
+
+  // Existing routes
   app.get("/api/protocols", (_req, res) => {
     res.json(MOCK_PROTOCOLS);
   });
 
-  // Get specific protocol
   app.get("/api/protocols/:id", (req, res) => {
     const protocol = MOCK_PROTOCOLS.find(p => p.id === parseInt(req.params.id));
     if (protocol) {
@@ -55,20 +96,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get user interactions
-  app.get("/api/interactions/:address", (req, res) => {
-    // Mock interaction data
+  // Protected interaction routes
+  app.get("/api/interactions/:address", isAuthenticated, (req, res) => {
     res.json([
       { protocolId: 1, count: 5 },
       { protocolId: 2, count: 2 },
     ]);
   });
 
-  // Update interaction
-  app.post("/api/interactions", (req, res) => {
+  app.post("/api/interactions", isAuthenticated, (req, res) => {
     const { protocolId, address } = req.body;
-    // Mock successful interaction update
     res.json({ success: true });
+  });
+
+  // Chat completion endpoint
+  app.post("/api/chat", async (req, res) => {
+    const { message } = req.body;
+
+    try {
+      const response = await generateChatResponse(message);
+      res.json({ response });
+    } catch (error) {
+      console.error('Chat error:', error);
+      res.status(500).json({ message: "Error processing chat request" });
+    }
   });
 
   const httpServer = createServer(app);

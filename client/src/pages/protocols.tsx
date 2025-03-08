@@ -1,12 +1,10 @@
-import { useLocation } from "wouter";
-import { useState, useMemo } from "react";
-import EcosystemMap from "@/components/ecosystem/EcosystemMap";
-import ChatInterface from "@/components/chat/ChatInterface";
-import SearchBar from "@/components/ecosystem/SearchBar";
 import { useProtocols } from "@/hooks/use-ecosystem";
-import { Protocol } from "@shared/schema";
+import ProtocolCard from "@/components/ecosystem/ProtocolCard";
+import SearchBar from "@/components/ecosystem/SearchBar";
+import { useState, useMemo } from "react";
+import { useLocation } from "wouter";
 
-export default function Home() {
+export default function Protocols() {
   const { data: protocols, isLoading } = useProtocols();
   const [_, navigate] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
@@ -26,10 +24,6 @@ export default function Home() {
     });
   }, [protocols, searchQuery, selectedCategory]);
 
-  const handleSelectProtocol = (protocol: Protocol) => {
-    navigate(`/protocol/${protocol.id}`);
-  };
-
   if (isLoading) {
     return (
       <div className="p-8 flex items-center justify-center min-h-screen">
@@ -41,7 +35,7 @@ export default function Home() {
   return (
     <div className="p-8 space-y-8">
       <div className="flex flex-col gap-6">
-        <h1 className="text-4xl font-bold">Explore Mantle Ecosystem</h1>
+        <h1 className="text-4xl font-bold">Mantle Protocols</h1>
         <SearchBar
           onSearch={setSearchQuery}
           onCategoryFilter={setSelectedCategory}
@@ -49,16 +43,10 @@ export default function Home() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div>
-          <EcosystemMap
-            protocols={filteredProtocols}
-            onSelectProtocol={handleSelectProtocol}
-          />
-        </div>
-        <div>
-          <ChatInterface />
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {filteredProtocols.map((protocol) => (
+          <ProtocolCard key={protocol.id} protocol={protocol} />
+        ))}
       </div>
     </div>
   );
