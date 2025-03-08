@@ -1,13 +1,34 @@
 import { useParams } from "wouter";
-import { useProtocol } from "@/hooks/use-ecosystem";
+import { useProtocol, useUpdateInteraction, useUserInteractions } from "@/hooks/use-ecosystem";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Github, Twitter } from "lucide-react";
+import { ExternalLink, Github, Twitter, Activity } from "lucide-react";
 import { motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Protocol() {
   const { id } = useParams<{ id: string }>();
   const { data: protocol, isLoading } = useProtocol(parseInt(id));
+  const { data: userInteractions } = useUserInteractions();
+  const { toast } = useToast();
+  const updateInteraction = useUpdateInteraction();
+
+  const handleInteraction = async () => {
+    try {
+      await updateInteraction.mutateAsync({ protocolId: parseInt(id) });
+      toast({
+        title: "Interaction Recorded",
+        description: "Your interaction with this protocol has been tracked",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to record interaction",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -24,6 +45,11 @@ export default function Protocol() {
       </div>
     );
   }
+
+  // Find user's interactions with this protocol
+  const protocolInteractions = userInteractions?.recentActivity?.find(
+    (activity) => activity.protocol.id === protocol.id
+  );
 
   return (
     <div className="p-8">
@@ -49,15 +75,35 @@ export default function Protocol() {
               {protocol.description}
             </p>
 
-            {protocol.tvl && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {protocol.tvl && (
+                <div className="p-4 rounded-lg bg-primary/5">
+                  <h3 className="text-sm text-muted-foreground mb-1">Total Value Locked</h3>
+                  <p className="text-2xl font-bold">${protocol.tvl.toLocaleString()}</p>
+                </div>
+              )}
+
               <div className="p-4 rounded-lg bg-primary/5">
-                <h3 className="text-sm text-muted-foreground mb-1">Total Value Locked</h3>
-                <p className="text-2xl font-bold">${protocol.tvl.toLocaleString()}</p>
+                <h3 className="text-sm text-muted-foreground mb-1">Your Interactions</h3>
+                <p className="text-2xl font-bold">{protocolInteractions?.interactionCount || 0}</p>
               </div>
-            )}
+            </div>
+
+            <Button 
+              onClick={handleInteraction} 
+              disabled={updateInteraction.isPending}
+              className="w-full"
+            >
+              {updateInteraction.isPending ? (
+                <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2" />
+              ) : (
+                <Activity className="w-4 h-4 mr-2" />
+              )}
+              Track Interaction
+            </Button>
 
             {protocol.metadata && (
-              <div className="flex gap-4">
+              <div className="flex gap-4 pt-4 border-t border-primary/20">
                 {protocol.metadata.website && (
                   <a
                     href={protocol.metadata.website}
