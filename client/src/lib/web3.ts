@@ -1,4 +1,3 @@
-
 import { ethers } from "ethers";
 
 // Create a provider compatible with ethers v5

@@ -1,6 +1,6 @@
 # MantleOrbiter
 
-![chainorbiter-banner](https://placeholder-for-mantleorbiter-banner.png)
+![chainorbiter-banner](https://i.ibb.co/dsz8zZH5/Mantle-orbiter-3.png)
 
 ## Table of Contents
 
@@ -10,23 +10,19 @@
   - [INIT Capital](#init-capital)
   - [Lendle](#lendle)
   - [Agni Finance](#agni-finance)
-  - [Circuit Protocol](#circuit-protocol)
 - [Features](#features)
 - [Run](#run)
 
-## Contact Us
-**Twitter**: [@MantleOrbiter](https://twitter.com/MantleOrbiter)  
-**Website**: [https://mantleorbiter.io](https://mantleorbiter.io)
 
 ## Overview
-MantleOrbiter is a comprehensive DeFi management platform built specifically for the Mantle ecosystem. It provides a unified interface for interacting with major DeFi protocols on Mantle Network, offering seamless integration for lending, borrowing, liquidity provision, and cross-chain bridging functionalities. 
+MantleOrbiter is a comprehensive DeFi management platform built specifically for the Mantle ecosystem. It provides a unified interface for interacting with major DeFi protocols on Mantle Network, DeFi interactions, enhanced market intelligence, and offers seamless integration for lending, borrowing, liquidity provision, and cross-chain bridging functionalities. 
 
 MantleOrbiter empowers users to maximize their yield and efficiently manage their assets across the Mantle ecosystem without the complexity of navigating multiple dApps. With dedicated modules for each protocol integration, users can execute complex DeFi strategies with ease and confidence.
 
 ## Integrations
 
 ### Mantle Network
-MantleOrbiter is built on top of the Mantle Network (Chain ID: 5001), providing a streamlined experience for users to interact with various DeFi protocols in the Mantle ecosystem. The application leverages Mantle's high throughput and low transaction costs to deliver a responsive and cost-effective user experience.
+MantleOrbiter is built on top of the Mantle Network, providing a streamlined experience for users to interact with various DeFi protocols in the Mantle ecosystem. The application leverages Mantle's high throughput and low transaction costs to deliver a responsive and cost-effective user experience.
 
 Key Mantle Network features in MantleOrbiter:
 - **Network Configuration**: Seamless connection to Mantle Testnet (ChainID: 5001) and Mantle Sepolia
@@ -35,18 +31,16 @@ Key Mantle Network features in MantleOrbiter:
 - **Token Transfers & Swaps**: Streamlined interface for token swaps and transfers within the Mantle ecosystem
 
 Implementation details:
-```typescript
-// Initialize provider with Mantle testnet RPC
-this.provider = new ethers.providers.JsonRpcProvider(
-  "https://rpc.testnet.mantle.xyz/",
-  {
-    name: 'mantle-testnet',
-    chainId: 5001,
-    ensAddress: null,
-    _defaultProvider: null
-  }
-);
-```
+
+- [Mantle Network Integration](https://github.com/Abraham12611/MantleOrbiter/blob/main/client/src/services/mantle.ts)
+
+- [Wallet Connection](https://github.com/Abraham12611/MantleOrbiter/blob/main/client/src/hooks/use-wallet.ts)
+
+- [Bridge Interface](https://github.com/Abraham12611/MantleOrbiter/blob/main/client/src/components/bridge/Bridge.tsx)
+
+- [Web3 Provider](https://github.com/Abraham12611/MantleOrbiter/blob/main/client/src/lib/web3.ts)
+
+- [Mantle Network SDK](https://github.com/Abraham12611/MantleOrbiter/blob/main/client/src/services/mantle.ts)
 
 ### INIT Capital
 MantleOrbiter integrates deeply with INIT Capital, a leading lending and borrowing protocol on Mantle. Users can create lending positions, manage collateral, borrow against their deposits, and track APY rates across different lending pools.
@@ -63,6 +57,14 @@ Supported INIT Capital lending pools:
 - WETH: 0x51AB74f8B03F0305d8dcE936B473AB587911AEC4
 - USDT: 0xadA66a8722B5cdfe3bC504007A5d793e7100ad09
 
+Implementation details:
+
+- [INIT Capital Integration](https://github.com/Abraham12611/MantleOrbiter/blob/main/client/src/services/init-capital.ts)
+
+- [Lending Position Management](https://github.com/Abraham12611/MantleOrbiter/blob/main/client/src/components/lending/LendingPosition.tsx)
+
+- [Collateral Operations](https://github.com/Abraham12611/MantleOrbiter/blob/main/client/src/components/lending/Collateral.tsx)
+
 ### Lendle
 MantleOrbiter provides a streamlined interface for interacting with Lendle, another prominent lending protocol in the Mantle ecosystem. Users can supply assets to earn interest, borrow against their deposits, and manage their lending positions through an intuitive dashboard.
 
@@ -76,6 +78,14 @@ Supported Lendle assets:
 - USDC
 - MNT
 
+Implementation details:
+
+- [Lendle Integration](https://github.com/Abraham12611/MantleOrbiter/blob/main/client/src/services/lendle.ts)
+
+- [Lending Position Management](https://github.com/Abraham12611/MantleOrbiter/blob/main/client/src/components/lending/LendingPosition.tsx)
+
+- [Collateral Operations](https://github.com/Abraham12611/MantleOrbiter/blob/main/client/src/components/lending/Collateral.tsx)
+
 ### Agni Finance
 MantleOrbiter integrates with Agni Finance, a decentralized exchange on Mantle that enables users to provide liquidity and earn fees. The application offers a simplified interface for adding and removing liquidity to Agni pools.
 
@@ -87,25 +97,17 @@ Key Agni Finance features:
 Supported Agni Finance pools:
 - MNT-USDC
 
-### Circuit Protocol
-MantleOrbiter integrates with Circuit Protocol, offering access to its innovative yield-bearing vaults and KTC token ecosystem on Mantle. Users can deposit assets to earn optimized yields through Circuit's automated strategies.
+Implementation details:
 
-Key Circuit Protocol features:
-- **Vault Deposits**: Deposit assets into Circuit's yield-optimizing vaults
-- **Yield Tracking**: Monitor yields and rewards from vault strategies
-- **KTC Vault Integration**: Special support for Circuit's KTC token vault
-- **Automated Harvesting**: Track available harvest rewards
+- [Agni Finance Integration](https://github.com/Abraham12611/MantleOrbiter/blob/main/client/src/services/agni.ts)
 
-Supported Circuit vaults:
-- Cleopatra USDC Vault
-- Circuit KTC Vault
+- [Liquidity Provisioning](https://github.com/Abraham12611/MantleOrbiter/blob/main/client/src/components/liquidity/Liquidity.tsx)
+
 
 ## Features
 
 ### Cross-Chain Bridge
 MantleOrbiter includes a comprehensive bridge interface that enables seamless transfers between Ethereum (L1) and Mantle Network (L2). Users can deposit and withdraw both MNT and WMNT tokens with a simple and intuitive UI.
-
-![Bridge Interface](https://placeholder-for-bridge-screenshot.png)
 
 The bridge leverages Mantle's official SDK to ensure secure and reliable cross-chain transactions.
 
@@ -115,13 +117,10 @@ The centralized dashboard provides a unified view of all supported protocols, or
 - **Lending**: INIT Capital and Lendle lending services
 - **Liquidity Pools**: Agni Finance liquidity provision
 
-![Protocol Dashboard](https://placeholder-for-dashboard-screenshot.png)
-
 ### Wallet Integration
 MantleOrbiter features a non-custodial wallet integration that allows users to connect their existing wallets or create new ones within the application. The wallet interface provides:
 - **Balance Tracking**: Monitor asset balances across all integrated protocols
 - **Transaction History**: View past transactions and their status
-- **Network Switching**: Easily switch between Ethereum and Mantle networks
 
 ### Asset Management
 The asset management interface provides a comprehensive overview of:

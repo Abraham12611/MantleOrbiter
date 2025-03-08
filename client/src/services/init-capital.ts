@@ -53,6 +53,7 @@ export class InitCapitalService {
     });
   }
 
+  // Position Management: Create lending positions with assets
   async createLendingPosition(asset: string, amount: string) {
     try {
       const signer = this.provider.getSigner();
@@ -60,11 +61,12 @@ export class InitCapitalService {
       const tx = await this.initCore.connect(signer).createPosition(asset, amountWei);
       return await tx.wait();
     } catch (error) {
-      console.error("Error creating lending position:", error);
+      console.error("Error creating position:", error);
       throw error;
     }
   }
 
+  // Position Management: Get position details
   async getPosition(positionId: number) {
     try {
       const position = await this.initCore.getPosition(positionId);
@@ -79,6 +81,7 @@ export class InitCapitalService {
     }
   }
 
+  // Collateral Operations: Add collateral to position
   async addCollateral(positionId: number, amount: string) {
     try {
       const signer = this.provider.getSigner();
@@ -91,6 +94,7 @@ export class InitCapitalService {
     }
   }
 
+  // Borrowing: Borrow against collateral
   async borrow(positionId: number, amount: string) {
     try {
       const signer = this.provider.getSigner();
@@ -103,6 +107,7 @@ export class InitCapitalService {
     }
   }
 
+  // Repayment: Repay borrowed amount
   async repay(positionId: number, amount: string) {
     try {
       const signer = this.provider.getSigner();
@@ -115,6 +120,7 @@ export class InitCapitalService {
     }
   }
 
+  // APY Tracking: Get current APY rates for lending pools
   async getPoolAPY(token: string): Promise<number> {
     try {
       const pool = this.lendingPools.get(token);
