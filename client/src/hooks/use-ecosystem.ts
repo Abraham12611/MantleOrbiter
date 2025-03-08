@@ -1,6 +1,7 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Protocol } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
 
 export function useProtocols() {
   return useQuery<Protocol[]>({
@@ -14,17 +15,20 @@ export function useProtocol(id: number) {
   });
 }
 
-export function useUserInteractions(address: string) {
-  return useQuery<{ protocolId: number; count: number }[]>({
-    queryKey: ["/api/interactions", address],
-    enabled: !!address,
+export function useUserInteractions() {
+  return useQuery({
+    queryKey: ["/api/user/interactions"],
   });
 }
 
 export function useUpdateInteraction() {
   return useMutation({
-    mutationFn: async ({ protocolId, address }: { protocolId: number; address: string }) => {
-      await apiRequest("POST", "/api/interactions", { protocolId, address });
+    mutationFn: async ({ protocolId }: { protocolId: number }) => {
+      await apiRequest("POST", "/api/interactions", { protocolId });
+    },
+    onSuccess: () => {
+      // Invalidate both protocol and user interaction queries
+      queryClient.invalidateQueries({ queryKey: ["/api/user/interactions"] });
     },
   });
 }
