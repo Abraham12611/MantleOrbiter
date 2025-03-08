@@ -12,7 +12,7 @@ export default function Protocols() {
   const [_, navigate] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [showSwap, setShowSwap] = useState(false);
+  const [showSwap, setShowSwap] = useState(true);
 
   const filteredProtocols = useMemo(() => {
     if (!protocols) return [];
@@ -47,21 +47,23 @@ export default function Protocols() {
             className="gap-2"
           >
             <Wallet className="h-4 w-4" />
-            {showSwap ? "Hide Swap" : "Show Swap"}
+            {showSwap ? "Hide Swap Interface" : "Show Swap Interface"}
           </Button>
         </div>
+
+        {/* Show Swap Interface in a more prominent position */}
+        {showSwap && (
+          <div className="py-4 max-w-2xl mx-auto w-full">
+            <SwapInterface />
+          </div>
+        )}
+
         <SearchBar
           onSearch={setSearchQuery}
           onCategoryFilter={setSelectedCategory}
           selectedCategory={selectedCategory}
         />
       </div>
-
-      {showSwap && (
-        <div className="py-4">
-          <SwapInterface />
-        </div>
-      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredProtocols.map((protocol) => (

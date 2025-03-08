@@ -13,7 +13,7 @@ app.use(express.urlencoded({ extended: false }));
 const SessionStore = MemoryStore(session);
 app.use(
   session({
-    secret: 'your-secret-key',
+    secret: process.env.SESSION_SECRET || 'dev-secret-key',
     resave: false,
     saveUninitialized: false,
     store: new SessionStore({
@@ -77,7 +77,7 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  const port = 5000;
+  const port = 5001;
   server.listen({
     port,
     host: "0.0.0.0",
