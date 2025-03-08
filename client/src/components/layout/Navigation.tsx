@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
 import { LayoutDashboard, Box, MessageSquare, Settings, User, Wallet } from "lucide-react";
 import WalletConnect from "@/components/wallet/WalletConnect";
+import WalletBalance from "@/components/wallet/WalletBalance";
 
 export default function Navigation() {
   const [location] = useLocation();
@@ -76,7 +77,8 @@ export default function Navigation() {
           </Link>
         </div>
 
-        <div className="mt-auto">
+        <div className="mt-auto space-y-4">
+          <WalletBalance />
           <WalletConnect />
         </div>
       </div>
