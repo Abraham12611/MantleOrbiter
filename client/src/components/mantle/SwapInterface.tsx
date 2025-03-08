@@ -10,9 +10,15 @@ import { useWallet } from "@/hooks/use-wallet";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useTokenPrice } from "@/hooks/use-token-price";
 import SwapConfirmationDialog from "./SwapConfirmationDialog";
+import { useTokenBalance } from "@/hooks/use-token-balance";
 
-// Common token addresses on Mantle Sepolia testnet
+// Update COMMON_TOKENS to include SepoliaMNT
 const COMMON_TOKENS = [
+  {
+    symbol: "SepoliaMNT",
+    name: "Mantle Token (Sepolia)",
+    address: "0x65e37B558F64E2Be5768DB46DF22F93d85741A9E",
+  },
   {
     symbol: "WETH",
     name: "Wrapped Ether",
@@ -44,6 +50,8 @@ export default function SwapInterface() {
 
   const tokenInPrice = useTokenPrice(formData.tokenIn);
   const tokenOutPrice = useTokenPrice(formData.tokenOut);
+  const tokenInBalance = useTokenBalance(formData.tokenIn, address);
+  const tokenOutBalance = useTokenBalance(formData.tokenOut, address);
 
   const selectedTokenIn = COMMON_TOKENS.find(token => token.address === formData.tokenIn);
   const selectedTokenOut = COMMON_TOKENS.find(token => token.address === formData.tokenOut);
@@ -157,6 +165,7 @@ export default function SwapInterface() {
                   <option key={token.address} value={token.address}>
                     {token.symbol} - {token.name}
                     {tokenInPrice.data ? ` ($${tokenInPrice.data.price.toFixed(2)})` : ''}
+                    {tokenInBalance.data ? ` - Balance: ${tokenInBalance.data.formatted}` : ''}
                   </option>
                 ))}
               </select>
@@ -185,6 +194,7 @@ export default function SwapInterface() {
                 <option key={token.address} value={token.address}>
                   {token.symbol} - {token.name}
                   {tokenOutPrice.data ? ` ($${tokenOutPrice.data.price.toFixed(2)})` : ''}
+                  {tokenOutBalance.data ? ` - Balance: ${tokenOutBalance.data.formatted}` : ''}
                 </option>
               ))}
             </select>
