@@ -33,4 +33,12 @@ export default defineConfig({
     outDir: path.resolve(__dirname, "dist/public"),
     emptyOutDir: true,
   },
+  define: {
+    'global': {},
+    'process.env': {},
+    'Buffer': ['buffer', 'Buffer'],
+  },
+  optimizeDeps: {
+    include: ['buffer'],
+  },
 });
