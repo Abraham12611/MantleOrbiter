@@ -29,7 +29,7 @@ export interface TransactionResponse {
  * Service for handling Mantle Network transactions
  */
 export class MantleService {
-  private provider: ethers.BrowserProvider | null = null;
+  private provider: ethers.providers.Web3Provider | null = null;
   private initialized = false;
 
   constructor() {
@@ -38,7 +38,7 @@ export class MantleService {
 
   private initializeProvider(): void {
     if (typeof window !== 'undefined' && window.ethereum) {
-      this.provider = new ethers.BrowserProvider(window.ethereum);
+      this.provider = new ethers.providers.Web3Provider(window.ethereum);
       this.initialized = true;
     }
   }

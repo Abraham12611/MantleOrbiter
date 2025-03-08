@@ -1,15 +1,22 @@
-require("dotenv").config();
-require("@nomicfoundation/hardhat-toolbox");
+import { HardhatUserConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-toolbox";
+import * as dotenv from 'dotenv';
 
-/** @type import('hardhat/config').HardhatUserConfig */
-module.exports = {
-  solidity: "0.8.20",
-  networks: {
-    mantleSepolia: {
-      url: "https://rpc.sepolia.mantle.xyz",
-      chainId: 5001, // Mantle Sepolia chainId (0x1389)
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
-      timeout: 20000, // Increase timeout for Mantle network
+dotenv.config();
+
+const config: HardhatUserConfig = {
+    solidity: "0.8.19",
+    defaultNetwork: "mantleSepolia",
+    networks: {
+        mantle: {
+            url: "https://rpc.mantle.xyz",
+            accounts: [process.env.ACCOUNT_PRIVATE_KEY ?? ""],
+        },
+        mantleSepolia: {
+            url: "https://rpc.sepolia.mantle.xyz",
+            accounts: [process.env.ACCOUNT_PRIVATE_KEY ?? ""],
+        },
     },
-  },
 };
+
+export default config;
