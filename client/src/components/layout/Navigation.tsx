@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Box, MessageSquare, Settings, User } from "lucide-react";
+import { LayoutDashboard, Box, MessageSquare, Settings, User, Wallet } from "lucide-react";
 import WalletConnect from "@/components/wallet/WalletConnect";
+import WalletBalance from "@/components/wallet/WalletBalance";
 
 export default function Navigation() {
   const [location] = useLocation();
@@ -32,6 +33,16 @@ export default function Navigation() {
             >
               <Box className="mr-2 h-4 w-4" />
               Protocols
+            </Button>
+          </Link>
+
+          <Link href="/swap">
+            <Button
+              variant={location === "/swap" ? "secondary" : "ghost"}
+              className="w-full justify-start"
+            >
+              <Wallet className="mr-2 h-4 w-4" />
+              Token Swap
             </Button>
           </Link>
 
@@ -66,7 +77,8 @@ export default function Navigation() {
           </Link>
         </div>
 
-        <div className="mt-auto">
+        <div className="mt-auto space-y-4">
+          <WalletBalance />
           <WalletConnect />
         </div>
       </div>

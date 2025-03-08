@@ -29,7 +29,7 @@ export interface TransactionResponse {
  * Service for handling Mantle Network transactions
  */
 export class MantleService {
-  private provider: ethers.BrowserProvider | null = null;
+  private provider: ethers.providers.Web3Provider | null = null;
   private initialized = false;
 
   constructor() {
@@ -38,7 +38,7 @@ export class MantleService {
 
   private initializeProvider(): void {
     if (typeof window !== 'undefined' && window.ethereum) {
-      this.provider = new ethers.BrowserProvider(window.ethereum);
+      this.provider = new ethers.providers.Web3Provider(window.ethereum);
       this.initialized = true;
     }
   }
@@ -161,3 +161,22 @@ export class MantleService {
 
 // Export singleton instance
 export const mantleService = new MantleService();
+
+import { ethers } from "ethers";
+
+export async function connectToMantle() {
+  if (!window.ethereum) {
+    throw new Error("MetaMask not installed");
+  }
+
+  // Using ethers.js v5 to connect to Mantle through MetaMask
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+  // Request account access
+  await provider.send("eth_requestAccounts", []);
+
+  // Get the signer
+  const signer = provider.getSigner();
+
+  return { provider, signer };
+}

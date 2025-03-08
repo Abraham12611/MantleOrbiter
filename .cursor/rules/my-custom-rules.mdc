@@ -1,0 +1,5 @@
+---
+description: Rules for implementing new mantle integrations
+globs: 
+---
+Always cross reference latest Documentation on the web [Links-for-docs.md](mdc:attached_assets/Links-for-docs.md) to ensure you are not making anything up and that your integrations are factual and correct, also make sur that you are marking everything we have completed in [mantle-protocols-integration.md](mdc:attached_assets/mantle-protocols-integration.md), so that we would be able to track progress and know the next steps to do.
