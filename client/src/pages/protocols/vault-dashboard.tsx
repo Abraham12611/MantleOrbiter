@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InitVaultSection } from "@/components/protocols/init/InitVaultSection";
 import { CircuitVaultSection } from "@/components/protocols/circuit/CircuitVaultSection";
+import { AgniPoolSection } from "@/components/protocols/agni/AgniPoolSection";
 
 export default function VaultDashboard() {
   return (
@@ -30,6 +31,12 @@ export default function VaultDashboard() {
         <TabsContent value="lending">
           <div className="grid gap-6">
             <InitVaultSection />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="pools">
+          <div className="grid gap-6">
+            <AgniPoolSection />
           </div>
         </TabsContent>
       </Tabs>
