@@ -91,17 +91,26 @@ export class MantleService {
 
     // MantleSwap contract address from deployment
     const SWAP_CONTRACT_ADDRESS = "0x..."; // Will be updated after deployment
-    const swapContract = new ethers.Contract(
-      SWAP_CONTRACT_ADDRESS,
-      [
-        "function swap(address tokenIn, address tokenOut, uint256 amountIn, uint256 minAmountOut) external returns (uint256)",
-      ],
+    const amountInWei = ethers.parseUnits(params.amountIn, 18);
+    const minAmountOut = amountInWei * BigInt(100 - params.slippage) / BigInt(100);
+
+    // First approve the token spending
+    const tokenContract = new ethers.Contract(
+      params.tokenIn,
+      ["function approve(address spender, uint256 amount) returns (bool)"],
       signer
     );
 
-    // Calculate minimum amount out based on slippage
-    const amountInWei = ethers.parseUnits(params.amountIn, 18);
-    const minAmountOut = amountInWei * BigInt(100 - params.slippage) / BigInt(100);
+    // Approve the swap contract to spend tokens
+    const approveTx = await tokenContract.approve(SWAP_CONTRACT_ADDRESS, amountInWei);
+    await approveTx.wait();
+
+    // Now execute the swap
+    const swapContract = new ethers.Contract(
+      SWAP_CONTRACT_ADDRESS,
+      ["function swap(address tokenIn, address tokenOut, uint256 amountIn, uint256 minAmountOut) external returns (uint256)"],
+      signer
+    );
 
     const tx = await swapContract.swap(
       params.tokenIn,
