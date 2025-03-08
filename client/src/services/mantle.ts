@@ -29,27 +29,49 @@ export interface TransactionResponse {
  * Service for handling Mantle Network transactions
  */
 export class MantleService {
-  private provider: ethers.providers.Web3Provider;
+  private provider: ethers.providers.Web3Provider | null = null;
+  private initialized = false;
 
   constructor() {
-    if (!window.ethereum) {
-      throw new Error("No Web3 provider found. Please install MetaMask.");
+    this.initializeProvider();
+  }
+
+  private initializeProvider(): void {
+    if (typeof window !== 'undefined' && window.ethereum) {
+      this.provider = new ethers.providers.Web3Provider(window.ethereum);
+      this.initialized = true;
     }
-    this.provider = new ethers.providers.Web3Provider(window.ethereum);
+  }
+
+  private ensureProvider(): void {
+    if (!this.initialized) {
+      this.initializeProvider();
+    }
+    if (!this.provider) {
+      throw new Error("Please install MetaMask to use this feature");
+    }
+  }
+
+  /**
+   * Check if MetaMask is installed
+   */
+  isMetaMaskInstalled(): boolean {
+    return this.initialized && this.provider !== null;
   }
 
   /**
    * Switch to Mantle Testnet
    */
   async switchToMantleNetwork(): Promise<void> {
+    this.ensureProvider();
     try {
-      await window.ethereum.request({
+      await window.ethereum?.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: MANTLE_TESTNET_CONFIG.chainId }],
       });
     } catch (error: any) {
       if (error.code === 4902) {
-        await window.ethereum.request({
+        await window.ethereum?.request({
           method: 'wallet_addEthereumChain',
           params: [MANTLE_TESTNET_CONFIG],
         });
@@ -63,8 +85,9 @@ export class MantleService {
    * Execute a token swap on Mantle Network using smart contract
    */
   async executeSwap(params: SwapParams): Promise<TransactionResponse> {
+    this.ensureProvider();
     await this.switchToMantleNetwork();
-    const signer = this.provider.getSigner();
+    const signer = this.provider!.getSigner();
 
     // Example DEX contract address on Mantle Testnet
     const DEX_CONTRACT_ADDRESS = "0x..."; // Add actual DEX contract address
@@ -95,6 +118,7 @@ export class MantleService {
    * Get token balance
    */
   async getTokenBalance(tokenAddress: string, address: string): Promise<string> {
+    this.ensureProvider();
     const tokenContract = new ethers.Contract(
       tokenAddress,
       ["function balanceOf(address) view returns (uint256)"],
@@ -109,8 +133,9 @@ export class MantleService {
    * Estimate gas for a swap
    */
   async estimateSwapGas(params: SwapParams): Promise<string> {
+    this.ensureProvider();
     await this.switchToMantleNetwork();
-    const signer = this.provider.getSigner();
+    const signer = this.provider!.getSigner();
 
     // Example DEX contract
     const DEX_CONTRACT_ADDRESS = "0x..."; // Add actual DEX contract address
