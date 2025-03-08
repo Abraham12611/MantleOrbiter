@@ -161,3 +161,22 @@ export class MantleService {
 
 // Export singleton instance
 export const mantleService = new MantleService();
+
+import { ethers } from "ethers";
+
+export async function connectToMantle() {
+  if (!window.ethereum) {
+    throw new Error("MetaMask not installed");
+  }
+
+  // Using ethers.js v5 to connect to Mantle through MetaMask
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+  // Request account access
+  await provider.send("eth_requestAccounts", []);
+
+  // Get the signer
+  const signer = provider.getSigner();
+
+  return { provider, signer };
+}
