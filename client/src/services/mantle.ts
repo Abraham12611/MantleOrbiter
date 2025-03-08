@@ -37,6 +37,17 @@ interface BridgeParams {
   amount: string;
 }
 
+interface CreateNFTParams {
+  name: string;
+  symbol: string;
+}
+
+interface MintNFTParams {
+  contractAddress: string;
+  tokenURI: string;
+  price: string;
+}
+
 /**
  * Service for handling Mantle Network transactions
  */
@@ -257,6 +268,38 @@ export class MantleService {
       amountWei
     );
 
+    return tx;
+  }
+
+  async createNFTCollection(params: CreateNFTParams): Promise<TransactionResponse> {
+    this.ensureProvider();
+    await this.switchToMantleNetwork();
+    const signer = await this.provider!.getSigner();
+
+    const factoryContract = new ethers.Contract(
+      NFT_FACTORY_ADDRESS,
+      ["function createCollection(string name, string symbol) external returns (address)"],
+      signer
+    );
+
+    const tx = await factoryContract.createCollection(params.name, params.symbol);
+    return tx;
+  }
+
+  async mintNFT(params: MintNFTParams): Promise<TransactionResponse> {
+    this.ensureProvider();
+    await this.switchToMantleNetwork();
+    const signer = await this.provider!.getSigner();
+
+    const nftContract = new ethers.Contract(
+      params.contractAddress,
+      ["function safeMint(string memory uri) public payable"],
+      signer
+    );
+
+    const tx = await nftContract.safeMint(params.tokenURI, {
+      value: ethers.utils.parseEther(params.price)
+    });
     return tx;
   }
 }
