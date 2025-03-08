@@ -6,3 +6,5 @@ vite.config.ts.*
 *.tar.gz
 attached_assets/
 progress.md
+.cursor/rules/my-custom-rules.mdc
+.cursor/rules/

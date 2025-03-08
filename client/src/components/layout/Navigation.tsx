@@ -36,6 +36,16 @@ export default function Navigation() {
             </Button>
           </Link>
 
+          <Link href="/protocols/vault-dashboard">
+            <Button
+              variant={location === "/protocols/vault-dashboard" ? "secondary" : "ghost"}
+              className="w-full justify-start"
+            >
+              <Box className="mr-2 h-4 w-4" />
+              Protocol Vaults
+            </Button>
+          </Link>
+
           <Link href="/swap">
             <Button
               variant={location === "/swap" ? "secondary" : "ghost"}
