@@ -26,6 +26,7 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "client", "src"),
       "@shared": path.resolve(__dirname, "shared"),
+      util: 'util',
     },
   },
   root: path.resolve(__dirname, "client"),
@@ -35,15 +36,14 @@ export default defineConfig({
   },
   define: {
     global: 'globalThis',
-    'process.env': {},
-    'Buffer': ['buffer', 'Buffer'],
+    'process.env': process.env,
   },
   optimizeDeps: {
-    include: ['buffer'],
     esbuildOptions: {
       define: {
         global: 'globalThis'
       }
-    }
+    },
+    include: ['buffer', 'util']
   },
 });
