@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InitVaultSection } from "@/components/protocols/init/InitVaultSection";
 import { CircuitVaultSection } from "@/components/protocols/circuit/CircuitVaultSection";
 import { AgniPoolSection } from "@/components/protocols/agni/AgniPoolSection";
+import { LendleSection } from "@/components/protocols/lendle/LendleSection";
 
 export default function VaultDashboard() {
   return (
@@ -31,6 +32,7 @@ export default function VaultDashboard() {
         <TabsContent value="lending">
           <div className="grid gap-6">
             <InitVaultSection />
+            <LendleSection />
           </div>
         </TabsContent>
 
