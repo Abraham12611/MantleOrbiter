@@ -9,6 +9,7 @@ import Home from "@/pages/home";
 import Protocols from "@/pages/protocols";
 import Protocol from "@/pages/protocol";
 import Profile from "@/pages/profile";
+import Swap from "@/pages/swap";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -33,6 +34,7 @@ function Router() {
               </ProtectedRoute>
             )}
           </Route>
+          <Route path="/swap" component={Swap} />
           <Route component={NotFound} />
         </Switch>
       </main>
