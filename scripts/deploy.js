@@ -1,9 +1,10 @@
-const hre = require("hardhat");
+
+const { ethers } = require("hardhat");
 
 async function main() {
   console.log("Starting deployment to Mantle Sepolia...");
 
-  const MantleSwap = await hre.ethers.getContractFactory("MantleSwap");
+  const MantleSwap = await ethers.getContractFactory("MantleSwap");
   console.log("Contract factory created, deploying MantleSwap...");
 
   const mantleSwap = await MantleSwap.deploy();
