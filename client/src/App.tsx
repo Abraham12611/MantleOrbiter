@@ -11,6 +11,9 @@ import Protocol from "@/pages/protocol";
 import Profile from "@/pages/profile";
 import Swap from "@/pages/swap";
 import NotFound from "@/pages/not-found";
+import TokenTransfer from "@/pages/token-transfer";
+import Bridge from "@/pages/bridge";
+import VaultDashboard from "@/pages/protocols/vault-dashboard";
 
 function Router() {
   return (
@@ -34,7 +37,10 @@ function Router() {
               </ProtectedRoute>
             )}
           </Route>
+          <Route path="/protocols/vault-dashboard" component={VaultDashboard} />
           <Route path="/swap" component={Swap} />
+          <Route path="/token-transfer" component={TokenTransfer} />
+          <Route path="/bridge" component={Bridge} />
           <Route component={NotFound} />
         </Switch>
       </main>

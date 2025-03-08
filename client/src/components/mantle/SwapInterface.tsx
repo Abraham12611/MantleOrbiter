@@ -36,6 +36,19 @@ const COMMON_TOKENS = [
   },
 ];
 
+const MANTLE_TESTNET_TOKENS = [
+  {
+    symbol: "MNT",
+    name: "Mantle",
+    address: "0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000", // Mantle native token
+  },
+  {
+    symbol: "WMNT",
+    name: "Wrapped Mantle",
+    address: "0x65e37B558F64E2Be5768DB46DF22F93d85741A9E", // Testnet WMNT
+  }
+];
+
 export default function SwapInterface() {
   const { address } = useWallet();
   const { toast } = useToast();

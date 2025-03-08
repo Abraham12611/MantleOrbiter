@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { mantleSDK } from "@mantleio/sdk";
 
 // Mantle Network Configuration
 const MANTLE_TESTNET_CONFIG = {
@@ -23,6 +24,28 @@ interface SwapParams {
 export interface TransactionResponse {
   hash: string;
   wait: () => Promise<ethers.ContractTransactionReceipt>;
+}
+
+interface TransferParams {
+  tokenAddress: string;
+  recipient: string;
+  amount: string;
+}
+
+interface BridgeParams {
+  tokenAddress: string;
+  amount: string;
+}
+
+interface CreateNFTParams {
+  name: string;
+  symbol: string;
+}
+
+interface MintNFTParams {
+  contractAddress: string;
+  tokenURI: string;
+  price: string;
 }
 
 /**
@@ -91,17 +114,26 @@ export class MantleService {
 
     // MantleSwap contract address from deployment
     const SWAP_CONTRACT_ADDRESS = "0x..."; // Will be updated after deployment
-    const swapContract = new ethers.Contract(
-      SWAP_CONTRACT_ADDRESS,
-      [
-        "function swap(address tokenIn, address tokenOut, uint256 amountIn, uint256 minAmountOut) external returns (uint256)",
-      ],
+    const amountInWei = ethers.parseUnits(params.amountIn, 18);
+    const minAmountOut = amountInWei * BigInt(100 - params.slippage) / BigInt(100);
+
+    // First approve the token spending
+    const tokenContract = new ethers.Contract(
+      params.tokenIn,
+      ["function approve(address spender, uint256 amount) returns (bool)"],
       signer
     );
 
-    // Calculate minimum amount out based on slippage
-    const amountInWei = ethers.parseUnits(params.amountIn, 18);
-    const minAmountOut = amountInWei * BigInt(100 - params.slippage) / BigInt(100);
+    // Approve the swap contract to spend tokens
+    const approveTx = await tokenContract.approve(SWAP_CONTRACT_ADDRESS, amountInWei);
+    await approveTx.wait();
+
+    // Now execute the swap
+    const swapContract = new ethers.Contract(
+      SWAP_CONTRACT_ADDRESS,
+      ["function swap(address tokenIn, address tokenOut, uint256 amountIn, uint256 minAmountOut) external returns (uint256)"],
+      signer
+    );
 
     const tx = await swapContract.swap(
       params.tokenIn,
@@ -156,6 +188,119 @@ export class MantleService {
     );
 
     return ethers.formatUnits(gasEstimate, 'gwei');
+  }
+
+  async transferToken(params: TransferParams): Promise<TransactionResponse> {
+    this.ensureProvider();
+    await this.switchToMantleNetwork();
+    const signer = await this.provider!.getSigner();
+
+    const amountWei = ethers.utils.parseEther(params.amount);
+
+    if (params.tokenAddress === "0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000") {
+      // Native MNT transfer
+      const tx = await signer.sendTransaction({
+        to: params.recipient,
+        value: amountWei
+      });
+      return tx;
+    } else {
+      // ERC20 transfer
+      const tokenContract = new ethers.Contract(
+        params.tokenAddress,
+        ["function transfer(address to, uint256 amount) returns (bool)"],
+        signer
+      );
+
+      const tx = await tokenContract.transfer(params.recipient, amountWei);
+      return tx;
+    }
+  }
+
+  async bridgeDeposit(params: BridgeParams): Promise<TransactionResponse> {
+    this.ensureProvider();
+    const signer = await this.provider!.getSigner();
+    
+    const crossChainMessenger = new mantleSDK.CrossChainMessenger({
+      l1ChainId: 5, // Goerli for testnet
+      l2ChainId: 5003, // Mantle testnet
+      l1SignerOrProvider: signer,
+      l2SignerOrProvider: signer,
+    });
+
+    const amountWei = ethers.utils.parseEther(params.amount);
+
+    // First approve the bridge to spend tokens
+    const approveTx = await crossChainMessenger.approveERC20(
+      params.tokenAddress,
+      params.tokenAddress, // Same address for standard tokens
+      amountWei
+    );
+    await approveTx.wait();
+
+    // Execute the deposit
+    const tx = await crossChainMessenger.depositERC20(
+      params.tokenAddress,
+      params.tokenAddress,
+      amountWei
+    );
+
+    return tx;
+  }
+
+  async bridgeWithdraw(params: BridgeParams): Promise<TransactionResponse> {
+    this.ensureProvider();
+    const signer = await this.provider!.getSigner();
+    
+    const crossChainMessenger = new mantleSDK.CrossChainMessenger({
+      l1ChainId: 5,
+      l2ChainId: 5003,
+      l1SignerOrProvider: signer,
+      l2SignerOrProvider: signer,
+    });
+
+    const amountWei = ethers.utils.parseEther(params.amount);
+
+    // Initiate withdrawal
+    const tx = await crossChainMessenger.withdrawERC20(
+      params.tokenAddress,
+      params.tokenAddress,
+      amountWei
+    );
+
+    return tx;
+  }
+
+  async createNFTCollection(params: CreateNFTParams): Promise<TransactionResponse> {
+    this.ensureProvider();
+    await this.switchToMantleNetwork();
+    const signer = await this.provider!.getSigner();
+
+    const factoryContract = new ethers.Contract(
+      NFT_FACTORY_ADDRESS,
+      ["function createCollection(string name, string symbol) external returns (address)"],
+      signer
+    );
+
+    const tx = await factoryContract.createCollection(params.name, params.symbol);
+    return tx;
+  }
+
+  async mintNFT(params: MintNFTParams): Promise<TransactionResponse> {
+    this.ensureProvider();
+    await this.switchToMantleNetwork();
+    const signer = await this.provider!.getSigner();
+
+    const nftContract = new ethers.Contract(
+      params.contractAddress,
+      ["function safeMint(string memory uri) public payable"],
+      signer
+    );
+
+    const tx = await nftContract.safeMint(params.tokenURI, {
+      value: ethers.utils.parseEther(params.price)
+    });
+    return tx;
   }
 }
 

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Box, MessageSquare, Settings, User, Wallet } from "lucide-react";
+import { LayoutDashboard, Box, MessageSquare, Settings, User, Wallet, Send, ArrowLeftRight } from "lucide-react";
 import WalletConnect from "@/components/wallet/WalletConnect";
 import WalletBalance from "@/components/wallet/WalletBalance";
 
@@ -33,6 +33,16 @@ export default function Navigation() {
             >
               <Box className="mr-2 h-4 w-4" />
               Protocols
+            </Button>
+          </Link>
+
+          <Link href="/protocols/vault-dashboard">
+            <Button
+              variant={location === "/protocols/vault-dashboard" ? "secondary" : "ghost"}
+              className="w-full justify-start"
+            >
+              <Box className="mr-2 h-4 w-4" />
+              Protocol Vaults
             </Button>
           </Link>
 
@@ -73,6 +83,26 @@ export default function Navigation() {
             >
               <Settings className="mr-2 h-4 w-4" />
               Settings
+            </Button>
+          </Link>
+
+          <Link href="/token-transfer">
+            <Button
+              variant={location === "/token-transfer" ? "secondary" : "ghost"}
+              className="w-full justify-start"
+            >
+              <Send className="mr-2 h-4 w-4" />
+              Token Transfer
+            </Button>
+          </Link>
+
+          <Link href="/bridge">
+            <Button
+              variant={location === "/bridge" ? "secondary" : "ghost"}
+              className="w-full justify-start"
+            >
+              <ArrowLeftRight className="mr-2 h-4 w-4" />
+              Cross-Chain Bridge
             </Button>
           </Link>
         </div>
