@@ -12,6 +12,7 @@ import Profile from "@/pages/profile";
 import Swap from "@/pages/swap";
 import NotFound from "@/pages/not-found";
 import TokenTransfer from "@/pages/token-transfer";
+import Bridge from "@/pages/bridge";
 
 function Router() {
   return (
@@ -37,6 +38,7 @@ function Router() {
           </Route>
           <Route path="/swap" component={Swap} />
           <Route path="/token-transfer" component={TokenTransfer} />
+          <Route path="/bridge" component={Bridge} />
           <Route component={NotFound} />
         </Switch>
       </main>

@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { mantleSDK } from "@mantleio/sdk";
 
 // Mantle Network Configuration
 const MANTLE_TESTNET_CONFIG = {
@@ -28,6 +29,11 @@ export interface TransactionResponse {
 interface TransferParams {
   tokenAddress: string;
   recipient: string;
+  amount: string;
+}
+
+interface BridgeParams {
+  tokenAddress: string;
   amount: string;
 }
 
@@ -198,6 +204,60 @@ export class MantleService {
       const tx = await tokenContract.transfer(params.recipient, amountWei);
       return tx;
     }
+  }
+
+  async bridgeDeposit(params: BridgeParams): Promise<TransactionResponse> {
+    this.ensureProvider();
+    const signer = await this.provider!.getSigner();
+    
+    const crossChainMessenger = new mantleSDK.CrossChainMessenger({
+      l1ChainId: 5, // Goerli for testnet
+      l2ChainId: 5003, // Mantle testnet
+      l1SignerOrProvider: signer,
+      l2SignerOrProvider: signer,
+    });
+
+    const amountWei = ethers.utils.parseEther(params.amount);
+
+    // First approve the bridge to spend tokens
+    const approveTx = await crossChainMessenger.approveERC20(
+      params.tokenAddress,
+      params.tokenAddress, // Same address for standard tokens
+      amountWei
+    );
+    await approveTx.wait();
+
+    // Execute the deposit
+    const tx = await crossChainMessenger.depositERC20(
+      params.tokenAddress,
+      params.tokenAddress,
+      amountWei
+    );
+
+    return tx;
+  }
+
+  async bridgeWithdraw(params: BridgeParams): Promise<TransactionResponse> {
+    this.ensureProvider();
+    const signer = await this.provider!.getSigner();
+    
+    const crossChainMessenger = new mantleSDK.CrossChainMessenger({
+      l1ChainId: 5,
+      l2ChainId: 5003,
+      l1SignerOrProvider: signer,
+      l2SignerOrProvider: signer,
+    });
+
+    const amountWei = ethers.utils.parseEther(params.amount);
+
+    // Initiate withdrawal
+    const tx = await crossChainMessenger.withdrawERC20(
+      params.tokenAddress,
+      params.tokenAddress,
+      amountWei
+    );
+
+    return tx;
   }
 }
 
