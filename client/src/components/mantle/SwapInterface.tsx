@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { mantleService } from "@/services/mantle";
-import { ArrowDownUp, Loader2 } from "lucide-react";
+import { ArrowDownUp, Loader2, AlertCircle } from "lucide-react";
 import { useWallet } from "@/hooks/use-wallet";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function SwapInterface() {
   const { address } = useWallet();
@@ -17,6 +18,8 @@ export default function SwapInterface() {
     amount: "",
     slippage: 0.5, // Default slippage of 0.5%
   });
+
+  const isMetaMaskInstalled = mantleService.isMetaMaskInstalled();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +67,32 @@ export default function SwapInterface() {
       setLoading(false);
     }
   };
+
+  if (!isMetaMaskInstalled) {
+    return (
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader>
+          <CardTitle>MetaMask Required</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Please install MetaMask to use the swap feature.{" "}
+              <a
+                href="https://metamask.io/download/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                Download MetaMask
+              </a>
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="w-full max-w-md mx-auto">
