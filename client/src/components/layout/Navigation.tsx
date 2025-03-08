@@ -11,8 +11,12 @@ export default function Navigation() {
     <nav className="w-64 h-screen p-4 border-r border-primary/20 backdrop-blur-xl bg-sidebar/30">
       <div className="flex flex-col h-full">
         <div className="flex items-center gap-2 mb-8">
-          <div className="w-8 h-8 rounded-full bg-primary/20 animate-pulse" />
-          <h1 className="text-xl font-bold">ChainOrbiter</h1>
+          <img 
+            src="public/Mantle-orbiter.png" 
+            alt="MantleOrbiter Logo" 
+            className="w-8 h-8"
+          />
+          <h1 className="text-xl font-bold">MantleOrbiter</h1>
         </div>
 
         <div className="flex flex-col gap-2">
