@@ -5,18 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Copy, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Profile() {
   const { user } = useAuth();
   const { data: protocols } = useProtocols();
   const { toast } = useToast();
 
-  // Mock interaction data - will be replaced with real data from API
-  const interactions = [
-    { date: '2024-01', count: 5 },
-    { date: '2024-02', count: 8 },
-    { date: '2024-03', count: 12 },
-  ];
+  const { data: userInteractions, isLoading } = useQuery({
+    queryKey: ['/api/user/interactions'],
+    enabled: !!user
+  });
 
   const copyAddress = () => {
     if (user?.address) {
@@ -27,6 +27,14 @@ export default function Profile() {
       });
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="p-8 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 space-y-8">
@@ -82,7 +90,7 @@ export default function Profile() {
           <CardContent>
             <div className="h-[200px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={interactions}>
+                <LineChart data={userInteractions?.monthlyData}>
                   <XAxis dataKey="date" />
                   <YAxis />
                   <Tooltip />
@@ -105,15 +113,15 @@ export default function Profile() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {protocols?.slice(0, 3).map((protocol) => (
+              {userInteractions?.recentActivity.map((activity) => (
                 <div
-                  key={protocol.id}
+                  key={activity.protocol.id}
                   className="flex items-center justify-between p-4 rounded-lg bg-muted/30"
                 >
                   <div>
-                    <h3 className="font-medium">{protocol.name}</h3>
+                    <h3 className="font-medium">{activity.protocol.name}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Last interaction: 2 days ago
+                      {activity.interactionCount} interactions
                     </p>
                   </div>
                   <Button variant="outline" size="sm">
