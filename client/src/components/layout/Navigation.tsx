@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Box, MessageSquare, Settings, User, Wallet, Send, Bridge } from "lucide-react";
+import { LayoutDashboard, Box, MessageSquare, Settings, User, Wallet, Send, ArrowLeftRight } from "lucide-react";
 import WalletConnect from "@/components/wallet/WalletConnect";
 import WalletBalance from "@/components/wallet/WalletBalance";
 
@@ -91,7 +91,7 @@ export default function Navigation() {
               variant={location === "/bridge" ? "secondary" : "ghost"}
               className="w-full justify-start"
             >
-              <Bridge className="mr-2 h-4 w-4" />
+              <ArrowLeftRight className="mr-2 h-4 w-4" />
               Cross-Chain Bridge
             </Button>
           </Link>
