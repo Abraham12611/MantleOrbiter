@@ -34,11 +34,16 @@ export default defineConfig({
     emptyOutDir: true,
   },
   define: {
-    'global': {},
+    global: 'globalThis',
     'process.env': {},
     'Buffer': ['buffer', 'Buffer'],
   },
   optimizeDeps: {
     include: ['buffer'],
+    esbuildOptions: {
+      define: {
+        global: 'globalThis'
+      }
+    }
   },
 });
