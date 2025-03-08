@@ -22,14 +22,14 @@ interface SwapParams {
 
 export interface TransactionResponse {
   hash: string;
-  wait: () => Promise<ethers.providers.TransactionReceipt>;
+  wait: () => Promise<ethers.ContractTransactionReceipt>;
 }
 
 /**
  * Service for handling Mantle Network transactions
  */
 export class MantleService {
-  private provider: ethers.providers.Web3Provider | null = null;
+  private provider: ethers.BrowserProvider | null = null;
   private initialized = false;
 
   constructor() {
@@ -38,7 +38,7 @@ export class MantleService {
 
   private initializeProvider(): void {
     if (typeof window !== 'undefined' && window.ethereum) {
-      this.provider = new ethers.providers.Web3Provider(window.ethereum);
+      this.provider = new ethers.BrowserProvider(window.ethereum);
       this.initialized = true;
     }
   }
@@ -87,12 +87,12 @@ export class MantleService {
   async executeSwap(params: SwapParams): Promise<TransactionResponse> {
     this.ensureProvider();
     await this.switchToMantleNetwork();
-    const signer = this.provider!.getSigner();
+    const signer = await this.provider!.getSigner();
 
-    // Example DEX contract address on Mantle Testnet
-    const DEX_CONTRACT_ADDRESS = "0x..."; // Add actual DEX contract address
-    const dexContract = new ethers.Contract(
-      DEX_CONTRACT_ADDRESS,
+    // MantleSwap contract address from deployment
+    const SWAP_CONTRACT_ADDRESS = "0x..."; // Will be updated after deployment
+    const swapContract = new ethers.Contract(
+      SWAP_CONTRACT_ADDRESS,
       [
         "function swap(address tokenIn, address tokenOut, uint256 amountIn, uint256 minAmountOut) external returns (uint256)",
       ],
@@ -100,14 +100,13 @@ export class MantleService {
     );
 
     // Calculate minimum amount out based on slippage
-    const minAmountOut = ethers.utils.parseUnits(params.amountIn, 18)
-      .mul(100 - params.slippage)
-      .div(100);
+    const amountInWei = ethers.parseUnits(params.amountIn, 18);
+    const minAmountOut = amountInWei * BigInt(100 - params.slippage) / BigInt(100);
 
-    const tx = await dexContract.swap(
+    const tx = await swapContract.swap(
       params.tokenIn,
       params.tokenOut,
-      ethers.utils.parseUnits(params.amountIn, 18),
+      amountInWei,
       minAmountOut
     );
 
@@ -126,7 +125,7 @@ export class MantleService {
     );
 
     const balance = await tokenContract.balanceOf(address);
-    return ethers.utils.formatUnits(balance, 18);
+    return ethers.formatUnits(balance, 18);
   }
 
   /**
@@ -135,30 +134,28 @@ export class MantleService {
   async estimateSwapGas(params: SwapParams): Promise<string> {
     this.ensureProvider();
     await this.switchToMantleNetwork();
-    const signer = this.provider!.getSigner();
+    const signer = await this.provider!.getSigner();
 
-    // Example DEX contract
-    const DEX_CONTRACT_ADDRESS = "0x..."; // Add actual DEX contract address
-    const dexContract = new ethers.Contract(
-      DEX_CONTRACT_ADDRESS,
+    const SWAP_CONTRACT_ADDRESS = "0x..."; // Will be updated after deployment
+    const swapContract = new ethers.Contract(
+      SWAP_CONTRACT_ADDRESS,
       [
         "function swap(address tokenIn, address tokenOut, uint256 amountIn, uint256 minAmountOut) external returns (uint256)",
       ],
       signer
     );
 
-    const minAmountOut = ethers.utils.parseUnits(params.amountIn, 18)
-      .mul(100 - params.slippage)
-      .div(100);
+    const amountInWei = ethers.parseUnits(params.amountIn, 18);
+    const minAmountOut = amountInWei * BigInt(100 - params.slippage) / BigInt(100);
 
-    const gasEstimate = await dexContract.estimateGas.swap(
+    const gasEstimate = await swapContract.swap.estimateGas(
       params.tokenIn,
       params.tokenOut,
-      ethers.utils.parseUnits(params.amountIn, 18),
+      amountInWei,
       minAmountOut
     );
 
-    return ethers.utils.formatUnits(gasEstimate, 'gwei');
+    return ethers.formatUnits(gasEstimate, 'gwei');
   }
 }
 
