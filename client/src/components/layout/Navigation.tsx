@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Box, MessageSquare, Settings } from "lucide-react";
+import { LayoutDashboard, Box, MessageSquare, Settings, User } from "lucide-react";
 import WalletConnect from "@/components/wallet/WalletConnect";
 
 export default function Navigation() {
@@ -24,7 +24,7 @@ export default function Navigation() {
               Dashboard
             </Button>
           </Link>
-          
+
           <Link href="/protocols">
             <Button
               variant={location === "/protocols" ? "secondary" : "ghost"}
@@ -42,6 +42,16 @@ export default function Navigation() {
             >
               <MessageSquare className="mr-2 h-4 w-4" />
               AI Chat
+            </Button>
+          </Link>
+
+          <Link href="/profile">
+            <Button
+              variant={location === "/profile" ? "secondary" : "ghost"}
+              className="w-full justify-start"
+            >
+              <User className="mr-2 h-4 w-4" />
+              Profile
             </Button>
           </Link>
 

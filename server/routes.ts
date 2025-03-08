@@ -96,16 +96,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Protected interaction routes
-  app.get("/api/interactions/:address", isAuthenticated, (req, res) => {
-    res.json([
-      { protocolId: 1, count: 5 },
-      { protocolId: 2, count: 2 },
-    ]);
+  // Enhanced interaction routes
+  app.get("/api/user/interactions", isAuthenticated, (req, res) => {
+    const userId = req.session.userId!;
+    // For now, return mock interaction data
+    const monthlyData = [
+      { date: '2024-01', count: 5 },
+      { date: '2024-02', count: 8 },
+      { date: '2024-03', count: 12 },
+    ];
+
+    const recentActivity = MOCK_PROTOCOLS.slice(0, 3).map(protocol => ({
+      protocol,
+      lastInteraction: new Date().toISOString(),
+      interactionCount: Math.floor(Math.random() * 10) + 1
+    }));
+
+    res.json({
+      monthlyData,
+      recentActivity
+    });
   });
 
   app.post("/api/interactions", isAuthenticated, (req, res) => {
-    const { protocolId, address } = req.body;
+    const { protocolId } = req.body;
+    const userId = req.session.userId!;
+
+    // For now, just acknowledge the interaction
     res.json({ success: true });
   });
 
