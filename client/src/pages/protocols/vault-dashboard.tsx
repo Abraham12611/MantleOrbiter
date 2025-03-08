@@ -5,6 +5,7 @@ import { InitVaultSection } from "@/components/protocols/init/InitVaultSection";
 import { CircuitVaultSection } from "@/components/protocols/circuit/CircuitVaultSection";
 import { AgniPoolSection } from "@/components/protocols/agni/AgniPoolSection";
 import { LendleSection } from "@/components/protocols/lendle/LendleSection";
+import { KTCVaultSection } from "@/components/protocols/circuit/KTCVaultSection";
 
 export default function VaultDashboard() {
   return (
@@ -26,6 +27,7 @@ export default function VaultDashboard() {
         <TabsContent value="vaults">
           <div className="grid gap-6">
             <CircuitVaultSection />
+            <KTCVaultSection />
           </div>
         </TabsContent>
 
