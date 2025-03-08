@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Box, MessageSquare, Settings, User, Wallet } from "lucide-react";
+import { LayoutDashboard, Box, MessageSquare, Settings, User, Wallet, Send } from "lucide-react";
 import WalletConnect from "@/components/wallet/WalletConnect";
 import WalletBalance from "@/components/wallet/WalletBalance";
 
@@ -73,6 +73,16 @@ export default function Navigation() {
             >
               <Settings className="mr-2 h-4 w-4" />
               Settings
+            </Button>
+          </Link>
+
+          <Link href="/token-transfer">
+            <Button
+              variant={location === "/token-transfer" ? "secondary" : "ghost"}
+              className="w-full justify-start"
+            >
+              <Send className="mr-2 h-4 w-4" />
+              Token Transfer
             </Button>
           </Link>
         </div>

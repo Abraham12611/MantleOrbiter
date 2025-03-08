@@ -25,6 +25,12 @@ export interface TransactionResponse {
   wait: () => Promise<ethers.ContractTransactionReceipt>;
 }
 
+interface TransferParams {
+  tokenAddress: string;
+  recipient: string;
+  amount: string;
+}
+
 /**
  * Service for handling Mantle Network transactions
  */
@@ -165,6 +171,33 @@ export class MantleService {
     );
 
     return ethers.formatUnits(gasEstimate, 'gwei');
+  }
+
+  async transferToken(params: TransferParams): Promise<TransactionResponse> {
+    this.ensureProvider();
+    await this.switchToMantleNetwork();
+    const signer = await this.provider!.getSigner();
+
+    const amountWei = ethers.utils.parseEther(params.amount);
+
+    if (params.tokenAddress === "0xDeadDeAddeAddEAddeadDEaDDEAdDeaDDeAD0000") {
+      // Native MNT transfer
+      const tx = await signer.sendTransaction({
+        to: params.recipient,
+        value: amountWei
+      });
+      return tx;
+    } else {
+      // ERC20 transfer
+      const tokenContract = new ethers.Contract(
+        params.tokenAddress,
+        ["function transfer(address to, uint256 amount) returns (bool)"],
+        signer
+      );
+
+      const tx = await tokenContract.transfer(params.recipient, amountWei);
+      return tx;
+    }
   }
 }
 
