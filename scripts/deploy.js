@@ -1,5 +1,5 @@
 
-const { ethers } = require("hardhat");
+import { ethers } from "hardhat";
 
 async function main() {
   console.log("Starting deployment to Mantle Sepolia...");
